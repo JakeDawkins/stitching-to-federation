@@ -8,11 +8,17 @@ const typeDefs = gql`
     userId: ID!
     reservationDate: String!
     status: String
+    user: User
   }
 
   type Query {
     reservations: [Reservation]!
     reservation(id: ID!): Reservation
+  }
+
+  extend type User @key(fields: "id") {
+    id: ID! @external
+    reservations: [Reservation]
   }
 `;
 
@@ -29,6 +35,12 @@ const resolvers = {
   Query: {
     reservations: () => [mockReservation(), mockReservation()],
     reservation: () => [mockReservation()],
+  },
+  User: {
+    reservations: () => [mockReservation()],
+  },
+  Reservation: {
+    user: () => ({ __typename: 'User', id: '1' }),
   },
 };
 

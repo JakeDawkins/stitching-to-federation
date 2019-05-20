@@ -9,8 +9,9 @@
     "deploy": "apollo schema:publish"
   },
   "dependencies": {
+    "@apollo/federation": "^0.1.1",
     "apollo-server": "latest",
-    "graphql": "^0.13.2",
+    "graphql": "latest",
     "nodemon": "^1.19.0"
   },
   "devDependencies": {
