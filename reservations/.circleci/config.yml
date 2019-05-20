@@ -1,0 +1,43 @@
+version: 2
+
+jobs:
+  build:
+    docker:
+      - image: circleci/node:8
+      
+    steps:
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "package.json" }}
+          # fallback to using the latest cache if no exact match is found
+          - v1-dependencies-
+
+      - run: npm install
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+        
+      - run:
+          name: Running Server
+          command: npm start
+          background: true
+
+      # make sure the server has enough time to start up before running
+      # commands against it
+      - run: sleep 5
+
+      # This will authenticate using the `ENGINE_API_KEY` environment
+      # variable. If the GraphQL server is available elsewhere than
+      # http://localhost:4000/graphql, set it with `--endpoint=<URL>`.
+      - run: npm run check
+
+      - run:
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              npm run deploy
+            fi
