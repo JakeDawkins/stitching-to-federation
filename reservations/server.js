@@ -8,7 +8,7 @@ const typeDefs = gql`
     userId: ID!
     reservationDate: String!
     status: String
-    user: User
+    userObj: User
   }
 
   type Query {
@@ -40,7 +40,7 @@ const resolvers = {
     reservations: () => [mockReservation()],
   },
   Reservation: {
-    user: () => ({ __typename: 'User', id: '1' }),
+    userObj: () => ({ __typename: 'User', id: '1' }),
   },
 };
 
