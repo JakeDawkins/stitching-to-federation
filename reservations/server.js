@@ -3,12 +3,12 @@ const { buildFederatedSchema } = require('@apollo/federation');
 
 // Construct a schema, using GraphQL schema language
 const typeDefs = gql`
-  type Reservation {
+  type Reservation @key(fields: "id") {
     id: ID!
     userId: ID!
     reservationDate: String!
     status: String
-    userObj: User
+    authorId: ID!
   }
 
   type Query {
@@ -40,7 +40,7 @@ const resolvers = {
     reservations: () => [mockReservation()],
   },
   Reservation: {
-    userObj: () => ({ __typename: 'User', id: '1' }),
+    // userObj: () => ({ __typename: 'User', id: '1' }),
   },
 };
 

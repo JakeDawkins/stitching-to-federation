@@ -13,24 +13,38 @@ const typeDefs = gql`
   type Query {
     user(id: ID!): User
   }
+
+  # This was originally in the stitched gateway
+  extend type Reservation @key(fields: "id") {
+    id: ID! @external
+    authorId: ID! @external
+    user: User @requires(fields: "authorId")
+  }
 `;
 
-const mockUser = () => {
-  return {
-    id: 1,
-    firstName: 'Jake',
-    lastName: 'Dawkins',
-    address: 'everywhere',
-  };
-};
-// Provide resolver functions for your schema fields
+const mockUser = () => ({
+  id: 1,
+  firstName: 'Jake',
+  lastName: 'Dawkins',
+  address: 'everywhere',
+});
+
 const resolvers = {
   Query: {
     user: () => mockUser(),
   },
   User: {
     __resolveObject(object) {
-      console.log(object);
+      return mockUser();
+    },
+  },
+  Reservation: {
+    user: ({ authorId }) => {
+      /**
+       * The old stitched resolvers called the Query.user resolver to lookup
+       * a user, but since we're in this service, we can just use whatever we
+       * need to lookup a user.
+       */
       return mockUser();
     },
   },

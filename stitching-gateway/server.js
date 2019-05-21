@@ -1,4 +1,5 @@
 const { ApolloServer, gql } = require('apollo-server');
+const { visit } = require('graphql');
 const { HttpLink } = require('apollo-link-http');
 const { setContext } = require('apollo-link-context');
 const { omit } = require('lodash');
@@ -7,6 +8,8 @@ const {
   introspectSchema,
   makeRemoteExecutableSchema,
   mergeSchemas,
+  transformSchema,
+  visitSchema,
 } = require('graphql-tools');
 
 const reservationLink = new HttpLink({ uri: 'http://localhost:4001', fetch });
@@ -30,18 +33,19 @@ const generateUserSchema = async () => {
   return executableSchema;
 };
 
-const linkTypeDefs = `
-  extend type Reservation {
-    user: User
-  }
-`;
+// MOVED TO USER SERVICE
+// const extendedReservationSchema = `
+//   extend type Reservation {
+//     user: User
+//   }
+// `;
 
 const generateAndMergeSchemas = async () => {
-  const resSchema = await generateReservationSchema();
+  const reservationSchema = await generateReservationSchema();
   const userSchema = await generateUserSchema();
 
   return mergeSchemas({
-    schemas: [resSchema, userSchema, linkTypeDefs],
+    schemas: [reservationSchema, userSchema],
     resolvers: {
       Reservation: {
         user: {
