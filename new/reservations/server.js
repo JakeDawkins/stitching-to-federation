@@ -1,14 +1,12 @@
 const { ApolloServer, gql } = require('apollo-server');
 const { buildFederatedSchema } = require('@apollo/federation');
 
-// Construct a schema, using GraphQL schema language
 const typeDefs = gql`
   type Reservation @key(fields: "id") {
     id: ID!
     userId: ID!
     reservationDate: String!
     status: String
-    authorId: ID!
   }
 
   type Query {
@@ -22,7 +20,7 @@ const typeDefs = gql`
   }
 `;
 
-const mockReservation = () => {
+const lookupReservation = () => {
   return {
     id: 1,
     userId: 1,
@@ -30,17 +28,21 @@ const mockReservation = () => {
     status: 'good',
   };
 };
-// Provide resolver functions for your schema fields
+
 const resolvers = {
   Query: {
-    reservations: () => [mockReservation(), mockReservation()],
-    reservation: () => [mockReservation()],
+    reservations: () => [lookupReservation(), lookupReservation()],
+    reservation: () => lookupReservation(),
   },
   User: {
-    reservations: () => [mockReservation()],
+    reservations: () => [lookupReservation()],
   },
   Reservation: {
-    // userObj: () => ({ __typename: 'User', id: '1' }),
+    __resolveReference: obj => lookupReservation(),
+    userId: res => {
+      console.log(res);
+      return res.userId;
+    },
   },
 };
 

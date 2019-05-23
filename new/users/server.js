@@ -17,12 +17,12 @@ const typeDefs = gql`
   # This was originally in the stitched gateway
   extend type Reservation @key(fields: "id") {
     id: ID! @external
-    authorId: ID! @external
-    user: User @requires(fields: "authorId")
+    userId: ID! @external
+    user: User @requires(fields: "userId")
   }
 `;
 
-const mockUser = () => ({
+const lookupUser = () => ({
   id: 1,
   firstName: 'Jake',
   lastName: 'Dawkins',
@@ -31,21 +31,21 @@ const mockUser = () => ({
 
 const resolvers = {
   Query: {
-    user: () => mockUser(),
+    user: () => lookupUser(),
   },
   User: {
-    __resolveObject(object) {
-      return mockUser();
+    __resolveReference(object) {
+      return lookupUser();
     },
   },
   Reservation: {
-    user: ({ authorId }) => {
+    user: ({ userId }) => {
       /**
        * The old stitched resolvers called the Query.user resolver to lookup
        * a user, but since we're in this service, we can just use whatever we
        * need to lookup a user.
        */
-      return mockUser();
+      return lookupUser(userId);
     },
   },
 };
